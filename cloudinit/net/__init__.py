@@ -549,7 +549,14 @@ def find_fallback_nic_on_linux() -> Optional[str]:
     """
     names = find_candidate_nics_on_linux()
     if names:
-        return names[0]
+        if 'gce' in util.system_info()["uname"][2]:
+            for nic in names:
+                if nic[:3] == "enp":
+                    names.remove(nic)  # Remove enp* interfaces from candidate list of NICs when in GCE
+            return names[0]
+
+        else:
+            return names[0]
 
     return None
 
